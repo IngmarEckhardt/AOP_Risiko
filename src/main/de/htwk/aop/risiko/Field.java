@@ -32,10 +32,14 @@ public class Field {
 		return this.owner == playerToCheck ? true : false;
 	}
 	
+	public boolean isEmpty () {
+		return (gamePieces < 1) ? true : false;
+	}
+	
 	public boolean isNeighboorWith(Field fieldToCheck) {
-		if ((this.line == fieldToCheck.line+1 || this.line == fieldToCheck.line+1) && this.row == fieldToCheck.row) {
+		if ((this.line == fieldToCheck.line+1 || this.line == fieldToCheck.line-1) && this.row == fieldToCheck.row) {
 			return true;
-		} else if ((this.row == fieldToCheck.row+1 || this.row == fieldToCheck.row+1) && this.line == fieldToCheck.line) {
+		} else if ((this.row == fieldToCheck.row+1 || this.row == fieldToCheck.row-1) && this.line == fieldToCheck.line) {
 			return true;
 		} else {
 			return false;

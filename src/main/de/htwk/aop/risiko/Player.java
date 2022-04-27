@@ -1,6 +1,8 @@
 package de.htwk.aop.risiko;
 
 public class Player {
+	
+
 	private Integer playerId = 1;
 	private String name;
 	private Integer armyCount, fieldCount;
@@ -47,5 +49,8 @@ public class Player {
 	public Integer getArmyCount() {
 		return armyCount;
 	}
-
+	@Override
+	public String toString() {
+		return name;
+	}
 }

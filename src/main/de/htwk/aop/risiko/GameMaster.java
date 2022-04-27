@@ -7,7 +7,7 @@ public class GameMaster {
 	private Map map;
 	private UserInput userInput;
 	private Dice dice;
-	private Player playerOne, playerTwo;
+	private Player playerOne, playerTwo, winnerOfLastRound;
 	private String winner;
 
 	public GameMaster() {
@@ -16,185 +16,140 @@ public class GameMaster {
 	}
 
 	public void startGame() {
+
 		askPlayersForTheirNames();
-		initMapWithPieces();
+
+		this.map = new Map(playerOne, playerTwo, userInput);
+		this.winnerOfLastRound = playerOne;
 
 		winner = playRounds();
-		
 		System.out.println("Der Gewinner ist " + winner);
 	}
-	
 
 	private void askPlayersForTheirNames() {
+
 		playerOne = new Player(userInput.getString("Bitte den Namen des ersten Spielers eingeben: "));
 		playerTwo = new Player(userInput.getString("Bitte den Namen des zweiten Spielers eingeben: "));
+
 	}
-	
-	
-
-	private void initMapWithPieces() {
-		this.map = new Map(playerOne, playerTwo);
-
-		do {
-			playerOne.setArmyCount(38);
-			map.clearArmys(playerOne);
-			distributeGamePieces(playerOne);
-			System.out.println("Die endgültige Verteilung der Steine sieht folgendermaßen aus: \n" + map.printMap());
-		} while (!userInput.jaNeinQuestion(
-				"Möchtest du die Verteilung der Steine so beibehalten? (J/N) Bei Nein wird die Verteilung gelöscht)"));
-
-		do {
-			playerTwo.setArmyCount(38);
-			map.clearArmys(playerTwo);
-			distributeGamePieces(playerTwo);
-			System.out.println("Die endgültige Verteilung der Steine sieht folgendermaßen aus: \n" + map.printMap());
-		} while (!userInput.jaNeinQuestion(
-				"Möchtest du die Verteilung der Steine so beibehalten? (J/N) Bei Nein wird die Verteilung gelöscht)"));
-	}
-	
-
-	private void distributeGamePieces(Player player) {
-		Integer amountToDistribute;
-		Field fieldToPlace;
-		
-		System.out.println(player.getName() + ", du hast " + player.getArmyCount()
-				+ "Armeen. Wähle Zeile und Spalte wo du deine ersten Steine platzieren möchtest,\n"
-				+ "danach wirst du gefragt wieviele Steine du platzieren möchtest.");
-
-		while (player.getArmyCount() > 0) {
-			amountToDistribute = 0;
-			System.out.println(map.printMap());
-			
-			fieldToPlace = getField("Gib die Zeile und Spalte des nächsten Feldes an, getrennt durch ein Leerzeichen", player);
-			
-			if (fieldToPlace == null) {continue;}
-			
-			amountToDistribute = userInput.getInt("Wieviele Spielsteine willst du platzieren?");
-			if (fieldToPlace.getGamePieces() > 0) {
-				player.addArmyToDepot(fieldToPlace.getGamePieces());
-			}
-		    if(player.raiseArmy(amountToDistribute)) {
-		    	fieldToPlace.setGamePieces(amountToDistribute);
-		    }
-			System.out.println("Es sind noch " + player.getArmyCount() + " Spielsteine zu verteilen");
-		}
-	}
-	
 
 	private String playRounds() {
-		Field attackField, defenseField;
-		String winner = "";
-		
-		System.out.println(
-				"Spieler 1, gib die Zeile und Spalte an wo sich die Armee befindet die du zum Angriff nutzen willst.");
 
 		while (playerOne.getFieldCount() > 0 && playerTwo.getFieldCount() > 0) {
+			System.out.println("\nAngriff!");
 			System.out.println(map.printMap());
-			
-			attackField = getField("Spieler 1: Gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen (Abbruch mit 0)", playerOne);
-			if (attackField == null) {continue;}
-			
-			defenseField = getField("Spieler 1: Gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an, getrennt durch ein Leerzeichen (Abbruch mit 0)", playerTwo);
-			if (defenseField == null) { continue;}
-			
-			fight(attackField, defenseField);
+
+			if (winnerOfLastRound == playerOne) {
+				fight(playerOne, playerTwo);
+			} else {
+				fight(playerTwo, playerOne);
+			}
+			refreshArmys(playerOne, playerTwo);
+			map.moveAndDeployArmy(playerOne);
+			map.moveAndDeployArmy(playerTwo);
 		}
 		
-		if (playerOne.getFieldCount() == 0) {
-			winner = playerTwo.getName();
-		} else {
-			winner = playerOne.getName();
-		}
-		
-		return winner;
+		return (playerOne.getFieldCount() == 0) ? playerTwo.getName() : playerOne.getName();
 	}
 
-	private Field getField(String string, Player player) {
-		Field returnField;
-		Integer line, row;
+	private void fight(Player attackingPlayer, Player defendingPlayer) {
+		Integer[] attackersToss, defendersToss;
+		Field attackField, defenseField = null;
+		
 		do {
-			line = userInput.getNextInt("Spieler 1: Gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen (Abbruch mit 0)");
-			row = userInput.getNextInt(null);
-			userInput.resetScanner();
-			if (line == 0 || row == 0) {return null;}
-			returnField = map.getField(line - 1, row - 1);
+			attackField = map.getField(attackingPlayer
+					+ ", gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen",
+					attackingPlayer);
+			if (attackField == null || attackField.isEmpty()) {
+				continue;
+			}
+
+			defenseField = map.getField(
+					attackingPlayer + ", gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an",
+					defendingPlayer);
+			if (defenseField == null) {
+				continue;
+			}
+
+		} while (!attackField.isNeighboorWith(defenseField));
+
 		
-		} while (!returnField.isOwner(player));
+		while (!defenseField.isEmpty() && !attackField.isEmpty()) {
+			String result = "";
+			attackersToss = rollDice(attackField);
 
-		return returnField;
-	}
+			defendersToss = rollDice(defenseField);
 
-	private void fight(Field attack, Field defense) {
-		Integer [] playerOneToss, playerTwoToss;
-		String result = "";
-		while (attack.getGamePieces() > 0 && defense.getGamePieces() > 0) {
-			
-			playerOneToss = rollDice(attack);
-			
-			playerTwoToss = rollDice(defense);
-						
-			applyFightResults(attack, defense, playerOneToss, playerTwoToss);
-			
-			if (defense.getGamePieces() < 1) {
-				System.out.println("Player 1 hat das Feld erfolgreich angegriffen");
-				defense.setOwner(playerOne);
-				playerOne.setFieldCount(playerOne.getFieldCount()+1);
-				playerTwo.setFieldCount(playerTwo.getFieldCount()-1);
-				break;
-			}
-			if (attack.getGamePieces() < 1) {
-				System.out.println("Player 2 hat das Feld erfolgreich verteidigt");
-				attack.setOwner(playerTwo);
-				playerOne.setFieldCount(playerOne.getFieldCount()-1);
-				playerTwo.setFieldCount(playerTwo.getFieldCount()+1);
-				break;
-			}
-			result = printDice(playerOneToss, playerTwoToss, result);
-			System.out.println(result + ". Nach dem Würfeln ist die Verteilung auf der Map folgendermaßen: ");
-			System.out.println(map.printMap());
-			if (!userInput.jaNeinQuestion("Möchtest du mit diesem Kampf fortfahren?")) {
+			applyFightResults(attackField, defenseField, attackersToss, defendersToss);
+
+			result = printDice(attackersToss, defendersToss, result);
+
+			System.out.println(result + "\n" + map.printMap());
+
+			if (!userInput.jaNeinQuestion("Möchtest du mit dem Kampf um dieses Feld fortfahren?")) {
 				break;
 			}
 		}
+		
+		if (defenseField.isEmpty()) {
+			changeOwnership(attackField, defenseField, attackingPlayer, defendingPlayer);
+		}
+		
+		if (attackField.isEmpty()) {
+			attackField.setGamePieces(0);
+			winnerOfLastRound = defendingPlayer;
+		}
 	}
-	
 
 	private Integer[] rollDice(Field field) {
 		Integer[] toss;
 		if (field.getGamePieces() > 2) {
-			toss = new Integer[] {dice.rollDice(),dice.rollDice(), dice.rollDice()};
-		} else if (field.getGamePieces() < 3) {
-			toss = new Integer[] {dice.rollDice(),dice.rollDice()};
+			toss = new Integer[] { dice.rollDice(), dice.rollDice(), dice.rollDice() };
+		} else if (field.getGamePieces() < 1) {
+			toss = new Integer[0];
+		} else if (field.getGamePieces() < 2) {
+			toss = new Integer[] { dice.rollDice() };
 		} else {
-			toss = new Integer[] {dice.rollDice()};
+			toss = new Integer[] { dice.rollDice(), dice.rollDice() };
 		}
 		Arrays.sort(toss, Collections.reverseOrder());
 		return toss;
 	}
 
+	private String printDice(Integer[] playerOneToss, Integer[] playerTwoToss, String result) {
+		result = result + "Der Angreifer würfelte ";
+		for (Integer integer : playerOneToss) {
+			result = result + integer;
+		}
+		result = result + ". Der Verteidiger würfelte ";
+		for (Integer integer : playerTwoToss) {
+			result = result + integer;
+		}
+		return result;
+	}
+	
 	private void applyFightResults(Field attack, Field defense, Integer[] playerOneToss, Integer[] playerTwoToss) {
-		for (int index = 0; index < playerOneToss.length; index++) {
+		for (int index = 0; index < playerOneToss.length && index < playerTwoToss.length; index++) {
 			if (playerTwoToss[index] == null || playerOneToss[index] > playerTwoToss[index]) {
-				attack.setGamePieces(attack.getGamePieces()+1);
-				defense.setGamePieces(defense.getGamePieces()-1);
-				
+				attack.setGamePieces(attack.getGamePieces() + 1);
+				defense.setGamePieces(defense.getGamePieces() - 1);
+
 			} else {
-				attack.setGamePieces(attack.getGamePieces()-1);
-				defense.setGamePieces(defense.getGamePieces()+1);
+				attack.setGamePieces(attack.getGamePieces() - 1);
+				defense.setGamePieces(defense.getGamePieces() + 1);
 			}
 		}
 	}
 
+	private void changeOwnership(Field attack, Field defense, Player attackingPlayer, Player defendingPlayer) {
+		defense.setOwner(attackingPlayer);
+		defense.setGamePieces(0);
+		attackingPlayer.setFieldCount(attackingPlayer.getFieldCount() + 1);
+		defendingPlayer.setFieldCount(defendingPlayer.getFieldCount() - 1);
+	}
 
-	private String printDice(Integer[] playerOneToss, Integer[] playerTwoToss, String result) {
-		result = result + "Spieler 1 würfelte ";
-		for (Integer integer: playerOneToss) {
-			result = result + integer;
-		}
-		result = result + ". Spieler 2 würfelte ";
-		for (Integer integer: playerTwoToss) {
-			result = result + integer;
-		}
-		return result;
+	private void refreshArmys(Player playerOne, Player playerTwo) {
+		playerOne.setArmyCount(playerOne.getArmyCount() + (playerOne.getFieldCount() / 4));
+		playerTwo.setArmyCount(playerTwo.getArmyCount() + (playerTwo.getFieldCount() / 4));
 	}
 }
