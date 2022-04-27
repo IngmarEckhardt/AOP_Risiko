@@ -3,12 +3,9 @@ package de.htwk.aop.risiko;
 public class Map {
 	
 	private Field[][] map;
-	private Player playerOne, playerTwo;
 	
 	public Map (Player playerOne, Player playerTwo) {
 		this.map = new Field[4][6];
-		this.playerOne = playerOne;
-		this.playerTwo = playerTwo;
 		for (int row = 0; row < 3; row++) {
 			for (int line = 0; line < 4; line++) {
 				map[line][row] = new Field(line,row,playerOne);
@@ -44,25 +41,15 @@ public class Map {
 			}
 			result += "\n_________________________________________________________________________________________________\n";
 		}
-//		result += "\n";
 		return result;
 	}
 
-	public void clearArmysPlayerOne() {
+	public void clearArmys(Player player) {
 		for (Field[] line : map) {
 			for (Field field : line) {
-				if (field.isOwner(playerOne)) field.setGamePieces(0);
+				if (field.isOwner(player)) field.setGamePieces(0);
 			}
 		}
 		
 	}
-	public void clearArmysPlayerTwo() {
-		for (Field[] line : map) {
-			for (Field field : line) {
-				if (field.isOwner(playerTwo)) field.setGamePieces(0);
-			}
-		}
-		
-	}
-
 }

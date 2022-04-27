@@ -1,10 +1,5 @@
 package de.htwk.aop.risiko;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 public class Player {
 	private Integer playerId = 1;
 	private String name;
