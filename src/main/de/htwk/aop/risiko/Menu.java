@@ -1,6 +1,6 @@
 package de.htwk.aop.risiko;
 
-public interface Menu {
+interface Menu {
 	
 	abstract void startMenu();
 }

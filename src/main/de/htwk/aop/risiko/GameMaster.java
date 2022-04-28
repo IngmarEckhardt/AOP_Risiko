@@ -11,21 +11,26 @@ public class GameMaster {
 	private String winner;
 
 	public GameMaster() {
+		
 		this.userInput = new UserInputImpl();
 		this.dice = new Dice();
+		this.map = new Map(userInput);
+		
 	}
 
 	public void startGame() {
 
 		askPlayersForTheirNames();
-
-		this.map = new Map(playerOne, playerTwo, userInput);
 		this.winnerOfLastRound = playerOne;
+		
+		map.initMapWithPieces(playerOne, playerTwo);
 
 		winner = playRounds();
 		System.out.println("Der Gewinner ist " + winner);
 	}
 
+	
+	
 	private void askPlayersForTheirNames() {
 
 		playerOne = new Player(userInput.getString("Bitte den Namen des ersten Spielers eingeben: "));
@@ -33,6 +38,7 @@ public class GameMaster {
 
 	}
 
+	
 	private String playRounds() {
 
 		while (playerOne.getFieldCount() > 0 && playerTwo.getFieldCount() > 0) {
@@ -40,11 +46,14 @@ public class GameMaster {
 			System.out.println(map.printMap());
 
 			if (winnerOfLastRound == playerOne) {
-				fight(playerOne, playerTwo);
+				fightBetween(playerOne, playerTwo);
+				
 			} else {
-				fight(playerTwo, playerOne);
+				fightBetween(playerTwo, playerOne);
 			}
+			
 			refreshArmys(playerOne, playerTwo);
+			
 			map.moveAndDeployArmy(playerOne);
 			map.moveAndDeployArmy(playerTwo);
 		}
@@ -52,20 +61,19 @@ public class GameMaster {
 		return (playerOne.getFieldCount() == 0) ? playerTwo.getName() : playerOne.getName();
 	}
 
-	private void fight(Player attackingPlayer, Player defendingPlayer) {
-		Integer[] attackersToss, defendersToss;
+	
+	private void fightBetween(Player attackingPlayer, Player defendingPlayer) {
+		Integer[] attackersTossCollect, defendersTossCollect;
 		Field attackField, defenseField = null;
 		
 		do {
-			attackField = map.getField(attackingPlayer
-					+ ", gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen",
+			attackField = map.getField(attackingPlayer + ", gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen",
 					attackingPlayer);
 			if (attackField == null || attackField.isEmpty()) {
 				continue;
 			}
 
-			defenseField = map.getField(
-					attackingPlayer + ", gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an",
+			defenseField = map.getField(attackingPlayer + ", gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an",
 					defendingPlayer);
 			if (defenseField == null) {
 				continue;
@@ -76,13 +84,12 @@ public class GameMaster {
 		
 		while (!defenseField.isEmpty() && !attackField.isEmpty()) {
 			String result = "";
-			attackersToss = rollDice(attackField);
+			
+			attackersTossCollect = rollDice(attackField);
+			defendersTossCollect = rollDice(defenseField);
 
-			defendersToss = rollDice(defenseField);
-
-			applyFightResults(attackField, defenseField, attackersToss, defendersToss);
-
-			result = printDice(attackersToss, defendersToss, result);
+			calculateFightResults(attackField, defenseField, attackersTossCollect, defendersTossCollect);
+			result = getTossesAsString(attackersTossCollect, defendersTossCollect, result);
 
 			System.out.println(result + "\n" + map.printMap());
 
@@ -92,7 +99,7 @@ public class GameMaster {
 		}
 		
 		if (defenseField.isEmpty()) {
-			changeOwnership(attackField, defenseField, attackingPlayer, defendingPlayer);
+			changeOwnership(defenseField, attackingPlayer, defendingPlayer);
 		}
 		
 		if (attackField.isEmpty()) {
@@ -101,36 +108,49 @@ public class GameMaster {
 		}
 	}
 
+	
 	private Integer[] rollDice(Field field) {
-		Integer[] toss;
+		Integer[] collectedTosses;
+		
 		if (field.getGamePieces() > 2) {
-			toss = new Integer[] { dice.rollDice(), dice.rollDice(), dice.rollDice() };
+			collectedTosses = new Integer[] { dice.rollDice(), dice.rollDice(), dice.rollDice() };
+			
 		} else if (field.getGamePieces() < 1) {
-			toss = new Integer[0];
+			collectedTosses = new Integer[0];
+			
 		} else if (field.getGamePieces() < 2) {
-			toss = new Integer[] { dice.rollDice() };
+			collectedTosses = new Integer[] { dice.rollDice() };
+			
 		} else {
-			toss = new Integer[] { dice.rollDice(), dice.rollDice() };
+			collectedTosses = new Integer[] { dice.rollDice(), dice.rollDice() };
 		}
-		Arrays.sort(toss, Collections.reverseOrder());
-		return toss;
+		
+		Arrays.sort(collectedTosses, Collections.reverseOrder());
+		return collectedTosses;
 	}
 
-	private String printDice(Integer[] playerOneToss, Integer[] playerTwoToss, String result) {
-		result = result + "Der Angreifer würfelte ";
+	
+	private String getTossesAsString(Integer[] playerOneToss, Integer[] playerTwoToss, String result) {
+		
+		result += "Der Angreifer würfelte ";
 		for (Integer integer : playerOneToss) {
-			result = result + integer;
+			result += integer;
 		}
-		result = result + ". Der Verteidiger würfelte ";
+		
+		result += ". Der Verteidiger würfelte ";
 		for (Integer integer : playerTwoToss) {
-			result = result + integer;
+			result += integer;
 		}
+		
 		return result;
 	}
 	
-	private void applyFightResults(Field attack, Field defense, Integer[] playerOneToss, Integer[] playerTwoToss) {
-		for (int index = 0; index < playerOneToss.length && index < playerTwoToss.length; index++) {
-			if (playerTwoToss[index] == null || playerOneToss[index] > playerTwoToss[index]) {
+	
+	private void calculateFightResults(Field attack, Field defense, Integer[] playerOneToss, Integer[] playerTwoToss) {
+		
+		for (int index = 0; index < playerOneToss.length; index++) {
+			
+			if (index > playerTwoToss.length-1 || playerTwoToss[index] == null || playerOneToss[index] > playerTwoToss[index]) {
 				attack.setGamePieces(attack.getGamePieces() + 1);
 				defense.setGamePieces(defense.getGamePieces() - 1);
 
@@ -141,15 +161,21 @@ public class GameMaster {
 		}
 	}
 
-	private void changeOwnership(Field attack, Field defense, Player attackingPlayer, Player defendingPlayer) {
+	
+	private void changeOwnership(Field defense, Player attackingPlayer, Player defendingPlayer) {
+		
 		defense.setOwner(attackingPlayer);
 		defense.setGamePieces(0);
+		
 		attackingPlayer.setFieldCount(attackingPlayer.getFieldCount() + 1);
 		defendingPlayer.setFieldCount(defendingPlayer.getFieldCount() - 1);
 	}
+	
 
 	private void refreshArmys(Player playerOne, Player playerTwo) {
+		
 		playerOne.setArmyCount(playerOne.getArmyCount() + (playerOne.getFieldCount() / 4));
 		playerTwo.setArmyCount(playerTwo.getArmyCount() + (playerTwo.getFieldCount() / 4));
+		
 	}
 }

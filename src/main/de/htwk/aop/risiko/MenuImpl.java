@@ -6,7 +6,7 @@ class MenuImpl implements Menu {
 	private UserInput userInput;
 	
 
-	public MenuImpl() {
+	MenuImpl() {
 		this.exit = false;
 		this.userInput = new UserInputImpl();
 	}

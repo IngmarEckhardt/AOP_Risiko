@@ -6,43 +6,39 @@ class Map {
 	private UserInput userInput;
 
 	// Constructor
-	Map(Player playerOne, Player playerTwo, UserInput userInput) {
+	Map( UserInput userInput) {
+		
 		this.map = new Field[4][6];
 		this.userInput = userInput;
-		for (int row = 0; row < 3; row++) {
-			for (int line = 0; line < 4; line++) {
-				map[line][row] = new Field(line, row, playerOne);
-				playerOne.setFieldCount(playerOne.getFieldCount() + 1);
-			}
-		}
-		for (int row = 3; row < 6; row++) {
-			for (int line = 0; line < 4; line++) {
-				map[line][row] = new Field(line, row, playerTwo);
-				playerTwo.setFieldCount(playerTwo.getFieldCount() + 1);
-			}
-		}
-		initMapWithPieces(playerOne, playerTwo);
 	}
 
+
 	Field getField(Integer line, Integer row) {
+		
 		if (line == null || row == null || line < 0 || line > 3 || row < 0 || row > 5) {
 			System.err.println("Invalid Arguments, line was " + line + " and row was " + row);
 			return null;
 		}
+		
 		return map[line][row];
-
+		
 	}
 
-	Field getField(String message, Player owner) {
-		Field returnField;
-		Integer line, row;
+	
+	Field getFieldWithCheckingOwnership(String message, Player owner) {
+		
+		Field returnField = null;
+		int line, row;
+		
 		do {
 			line = userInput.getNextInt(message);
 			row = userInput.getNextInt(null);
 			userInput.resetScanner();
+			
 			if (line == 0 || row == 0) {
 				return null;
 			}
+			
 			returnField = getField(line - 1, row - 1);
 
 		} while (!returnField.isOwner(owner));
@@ -50,6 +46,7 @@ class Map {
 		return returnField;
 	}
 
+	
 	String printMap() {
 		String result = "";
 		for (Field[] line : map) {
@@ -65,6 +62,7 @@ class Map {
 		return result;
 	}
 
+	
 	void moveAndDeployArmy(Player player) {
 		Field fieldWithArmys, fieldToPlaceArmys;
 		Integer amountOfArmysToMove = 0, amountOfArmysToDeployFromDepot;
@@ -74,8 +72,8 @@ class Map {
 		}
 		// move from field to field
 		while (userInput.jaNeinQuestion("Möchtest du weitere Armeen bewegen, " + player.getName() + "?")) {
-			fieldWithArmys = getField("Gib Zeile und Spalte des Feldes mit deiner Armee ein", player);
-			fieldToPlaceArmys = getField("Gib ein benachbartes Feld an, zu welchem die Armeen verschoben werden sollen",
+			fieldWithArmys = getFieldWithCheckingOwnership("Gib Zeile und Spalte des Feldes mit deiner Armee ein", player);
+			fieldToPlaceArmys = getFieldWithCheckingOwnership("Gib ein benachbartes Feld an, zu welchem die Armeen verschoben werden sollen",
 					player);
 			if (fieldWithArmys.isNeighboorWith(fieldToPlaceArmys) && fieldWithArmys.getGamePieces() > 0) {
 				do {
@@ -92,7 +90,7 @@ class Map {
 		// deploy from depot
 		while (player.getArmyCount() > 0 && userInput.jaNeinQuestion("Möchtest Du weitere Armeen aufstellen? (j/n)")) {
 
-			fieldToPlaceArmys = getField("Gib das Feld an in dem die Armeen aufgestellt werden", player);
+			fieldToPlaceArmys = getFieldWithCheckingOwnership("Gib das Feld an in dem die Armeen aufgestellt werden", player);
 			do {
 				System.out.println("Es befinden sich " + player.getArmyCount() + " Armeen im Depot.");
 
@@ -107,7 +105,21 @@ class Map {
 		}
 	}
 
-	private void initMapWithPieces(Player playerOne, Player playerTwo) {
+	void initMapWithPieces(Player playerOne, Player playerTwo) {
+		
+		for (int row = 0; row < 3; row++) {
+			for (int line = 0; line < 4; line++) {
+				map[line][row] = new Field(line, row, playerOne);
+				playerOne.setFieldCount(playerOne.getFieldCount() + 1);
+			}
+		}
+		
+		for (int row = 3; row < 6; row++) {
+			for (int line = 0; line < 4; line++) {
+				map[line][row] = new Field(line, row, playerTwo);
+				playerTwo.setFieldCount(playerTwo.getFieldCount() + 1);
+			}
+		}
 
 		do {
 			playerOne.setArmyCount(38);
@@ -147,7 +159,7 @@ class Map {
 			amountToDistribute = 0;
 			System.out.println(printMap());
 
-			fieldToPlace = getField("Gib die Zeile und Spalte des nächsten Feldes an, getrennt durch ein Leerzeichen",
+			fieldToPlace = getFieldWithCheckingOwnership("Gib die Zeile und Spalte des nächsten Feldes an, getrennt durch ein Leerzeichen",
 					player);
 
 			if (fieldToPlace == null) {
