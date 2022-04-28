@@ -67,13 +67,13 @@ public class GameMaster {
 		Field attackField, defenseField = null;
 		
 		do {
-			attackField = map.getField(attackingPlayer + ", gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen",
+			attackField = map.getFieldWithCheckingOwnership(attackingPlayer + ", gib die Zeile und Spalte des Feldes mit deiner Armee an, getrennt durch ein Leerzeichen",
 					attackingPlayer);
 			if (attackField == null || attackField.isEmpty()) {
 				continue;
 			}
 
-			defenseField = map.getField(attackingPlayer + ", gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an",
+			defenseField = map.getFieldWithCheckingOwnership(attackingPlayer + ", gib die Zeile und Spalte eines benachbarten Feldes mit deinem Ziel an",
 					defendingPlayer);
 			if (defenseField == null) {
 				continue;
