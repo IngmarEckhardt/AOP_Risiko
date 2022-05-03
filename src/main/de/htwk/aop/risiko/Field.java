@@ -19,8 +19,15 @@ public class Field {
 		return gamePieces;
 	}
 	public void setGamePieces(Integer gamePieces) {
+		if (gamePieces == null) return;
 		this.gamePieces = gamePieces;
 	}
+	
+	public void increaseGamePieces(Integer amount) {
+		if (amount == null) return;
+		this.gamePieces +=amount;
+	}
+	
 	public Player getOwner() {
 		return owner;
 	}

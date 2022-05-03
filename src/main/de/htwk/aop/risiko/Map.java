@@ -72,15 +72,17 @@ class Map {
 		}
 		// move from field to field
 		while (userInput.jaNeinQuestion("Möchtest du weitere Armeen bewegen, " + player.getName() + "?")) {
+			
 			fieldWithArmys = getFieldWithCheckingOwnership("Gib Zeile und Spalte des Feldes mit deiner Armee ein", player);
 			fieldToPlaceArmys = getFieldWithCheckingOwnership("Gib ein benachbartes Feld an, zu welchem die Armeen verschoben werden sollen",
 					player);
+			
 			if (fieldWithArmys.isNeighboorWith(fieldToPlaceArmys) && fieldWithArmys.getGamePieces() > 0) {
 				do {
 					amountOfArmysToMove = userInput.getInt("Wieviele Armeen möchtest du bewegen?");
 				} while (amountOfArmysToMove < 0 || !(amountOfArmysToMove < fieldWithArmys.getGamePieces()));
-
 			}
+			
 			fieldWithArmys.setGamePieces(fieldWithArmys.getGamePieces() - amountOfArmysToMove);
 			fieldToPlaceArmys.setGamePieces(fieldToPlaceArmys.getGamePieces() + amountOfArmysToMove);
 
@@ -91,16 +93,15 @@ class Map {
 		while (player.getArmyCount() > 0 && userInput.jaNeinQuestion("Möchtest Du weitere Armeen aufstellen? (j/n)")) {
 
 			fieldToPlaceArmys = getFieldWithCheckingOwnership("Gib das Feld an in dem die Armeen aufgestellt werden", player);
+			
 			do {
 				System.out.println("Es befinden sich " + player.getArmyCount() + " Armeen im Depot.");
+				amountOfArmysToDeployFromDepot = userInput.getInt("Wieviele Armeen möchtest du in diesem Feld platzieren?");
 
-				amountOfArmysToDeployFromDepot = userInput
-						.getInt("Wieviele Armeen möchtest du in diesem Feld platzieren?");
-
-			} while (amountOfArmysToDeployFromDepot < 0 || amountOfArmysToDeployFromDepot > player.getArmyCount());
+			} while (amountOfArmysToDeployFromDepot < 0 || !player.raiseArmy(amountOfArmysToDeployFromDepot));
 
 			fieldToPlaceArmys.setGamePieces(fieldToPlaceArmys.getGamePieces() + amountOfArmysToDeployFromDepot);
-			player.raiseArmy(amountOfArmysToDeployFromDepot);
+			
 			System.out.println(printMap());
 		}
 	}
@@ -152,7 +153,7 @@ class Map {
 		Field fieldToPlace;
 
 		System.out.println(player + ", du hast " + player.getArmyCount()
-				+ "Armeen. Wähle Zeile und Spalte wo du deine ersten Steine platzieren möchtest,\n"
+				+ " Armeen. Wähle Zeile und Spalte wo du deine ersten Steine platzieren möchtest,\n"
 				+ "danach wirst du gefragt wieviele Steine du platzieren möchtest.");
 
 		while (player.getArmyCount() > 0) {
