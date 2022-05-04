@@ -18,7 +18,5 @@ abstract class Player {
 	abstract Integer getFieldCount();
 	abstract Integer setFieldCount(Integer fieldCount);
 	abstract boolean raiseArmy(Integer amount);
-	abstract Integer addArmyToDepot (Integer amount);
 	public abstract String toString();
-	
 }

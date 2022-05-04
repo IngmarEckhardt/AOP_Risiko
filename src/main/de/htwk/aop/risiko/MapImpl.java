@@ -27,6 +27,7 @@ class MapImpl extends Map {
 	@Override
 	Field getFieldWithCheckingOwnership(String message, Player owner) {
 		
+		if (message == null || owner == null) {return null;}
 		Field returnField = null;
 		int line, row;
 		
@@ -34,11 +35,7 @@ class MapImpl extends Map {
 			line = userInput.getNextInt(message);
 			row = userInput.getNextInt(null);
 			userInput.resetScanner();
-			
-			if (line == 0 || row == 0) {
-				return null;
-			}
-			
+						
 			returnField = getField(line - 1, row - 1);
 	
 		} while (!returnField.isOwner(owner));

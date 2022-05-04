@@ -52,15 +52,7 @@ class PlayerImpl extends Player {
 			return true;
 		}
 	}
-	
-	@Override
-	Integer addArmyToDepot (Integer amount) {
-		if (amount == null) {return null;}
-		armyCount = armyCount + amount;
-		return armyCount;
-	}
 
-	
 	@Override
 	public String toString() {
 		return name;
