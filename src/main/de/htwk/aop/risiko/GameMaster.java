@@ -4,7 +4,7 @@ class GameMaster {
 	private Map map;
 	private UserInput userInput;
 
-	private PlayerImpl playerOne, playerTwo, winnerOfLastRound;
+	private Player playerOne, playerTwo, winnerOfLastRound;
 	private String winner;
 
 	public GameMaster() {
@@ -56,7 +56,7 @@ class GameMaster {
 	}
 
 	
-	private void fightBetween(PlayerImpl attackingPlayer, PlayerImpl defendingPlayer) {
+	private void fightBetween(Player attackingPlayer, Player defendingPlayer) {
 		Field attackField, defenseField = null;
 		
 		do {
@@ -90,7 +90,7 @@ class GameMaster {
 	}
 
 		
-	private void changeOwnership(Field defense, PlayerImpl attackingPlayer, PlayerImpl defendingPlayer) {
+	private void changeOwnership(Field defense, Player attackingPlayer, Player defendingPlayer) {
 		
 		defense.setOwner(attackingPlayer);	
 		attackingPlayer.setFieldCount(attackingPlayer.getFieldCount() + 1);
@@ -98,7 +98,7 @@ class GameMaster {
 	}
 	
 
-	private void refreshArmys(PlayerImpl playerOne, PlayerImpl playerTwo) {
+	private void refreshArmys(Player playerOne, Player playerTwo) {
 		
 		playerOne.setArmyCount(playerOne.getArmyCount() + (playerOne.getFieldCount() / 4));
 		playerTwo.setArmyCount(playerTwo.getArmyCount() + (playerTwo.getFieldCount() / 4));

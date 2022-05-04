@@ -2,18 +2,18 @@ package de.htwk.aop.risiko;
 
 class MapImpl extends Map {
 
-	FieldImpl[][] map;
+	Field[][] map;
 	UserInput userInput;
 
 	// Constructor
-	MapImpl( UserInput userInput) {
+	MapImpl(UserInput userInput) {
 		
 		this.map = new FieldImpl[4][6];
 		this.userInput = userInput;
 	}
 	
 	@Override
-	FieldImpl getField(Integer line, Integer row) {
+	Field getField(Integer line, Integer row) {
 		
 		if (line == null || row == null || line < 0 || line > 3 || row < 0 || row > 5) {
 			System.err.println("Invalid Arguments, line was " + line + " and row was " + row);
@@ -25,9 +25,9 @@ class MapImpl extends Map {
 	}
 	
 	@Override
-	FieldImpl getFieldWithCheckingOwnership(String message, Player owner) {
+	Field getFieldWithCheckingOwnership(String message, Player owner) {
 		
-		FieldImpl returnField = null;
+		Field returnField = null;
 		int line, row;
 		
 		do {
@@ -64,7 +64,7 @@ class MapImpl extends Map {
 	
 	@Override
 	boolean moveAndDeployArmy(Player player) {
-		FieldImpl fieldWithArmys, fieldToPlaceArmys;
+		Field fieldWithArmys, fieldToPlaceArmys;
 		Integer amountOfArmysToMove = 0, amountOfArmysToDeployFromDepot;
 	
 		if (player.getFieldCount() == 0 || player == null) {return false;}

@@ -3,7 +3,6 @@ package de.htwk.aop.risiko;
 class PlayerImpl extends Player {
 	
 
-	private Integer playerId = 1;
 	private String name;
 	private Integer armyCount, fieldCount;
 	
