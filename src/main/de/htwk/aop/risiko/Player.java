@@ -1,56 +1,28 @@
 package de.htwk.aop.risiko;
 
-public class Player {
+abstract class Player {
 	
-
-	private Integer playerId = 1;
-	private String name;
-	private Integer armyCount, fieldCount;
-
-	public Player(String name) {
-		this.armyCount = 38;
+	protected String name;
+	private int counter = 0;
+	protected int playerId, armyCount, fieldCount;
+	
+	private Player() {
+		this.playerId = counter + 1;
+		counter ++;
+	}
+	
+	protected Player (String name) {
+		super();
 		this.name = name;
-		this.playerId = playerId++;
-		this.fieldCount = 0;
-	}
-
-	public void setArmyCount(Integer armyCount) {
-		this.armyCount = armyCount;
-	}
-
-	public String getName() {
-		return name;
 	}
 	
-	public Integer getFieldCount() {
-		return fieldCount;
-	}
-
-	public void setFieldCount(Integer fieldCount) {
-		this.fieldCount = fieldCount;
-	}
-
-	public boolean raiseArmy(Integer amount) {
-		if (armyCount < 1) {return false;}
-		if (armyCount < amount) {
-			System.out.println("Du hast nicht genug Armeen");
-			return false;
-		} else {
-			armyCount = armyCount - amount;
-			return true;
-		}
-	}
+	abstract Integer setArmyCount(Integer armyCount);
+	abstract Integer getArmyCount();
+	abstract String getName();
+	abstract Integer getFieldCount();
+	abstract Integer setFieldCount(Integer fieldCount);
+	abstract boolean raiseArmy(Integer amount);
+	abstract Integer addArmyToDepot (Integer amount);
+	public abstract String toString();
 	
-	public Integer addArmyToDepot (Integer amount) {
-		armyCount = armyCount + amount;
-		return armyCount;
-	}
-	
-	public Integer getArmyCount() {
-		return armyCount;
-	}
-	@Override
-	public String toString() {
-		return name;
-	}
 }

@@ -2,14 +2,14 @@ package de.htwk.aop.risiko;
 
 import java.util.Random;
 
-public class Dice {
+class Dice {
 	private Random randomGenerator;
 	
-	public Dice() {
+	Dice() {
 		this.randomGenerator = new Random(System.nanoTime());
 	}
 	
-	public Integer rollDice() {
+	Integer rollDice() {
 		return randomGenerator.nextInt(6)+1;
 	}
 }

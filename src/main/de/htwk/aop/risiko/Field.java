@@ -1,55 +1,36 @@
 package de.htwk.aop.risiko;
 
-public class Field {
-	private Integer gamePieces, line, row;
-	private Player owner;
+abstract class Field {
+
+	protected int line;
+	protected int row;
+	protected PlayerImpl owner;
 	
-	public Field (Integer line, Integer row, Player owner) {
+	protected Field (Integer line, Integer row, PlayerImpl owner) {
 		this.line = line;
 		this.row = row;
 		this.owner = owner;
 	}
-	public Integer getLine() {
-		return line;
-	}
-	public Integer getRow() {
-		return row;
-	}
-	public Integer getGamePieces() {
-		return gamePieces;
-	}
-	public void setGamePieces(Integer gamePieces) {
-		if (gamePieces == null) return;
-		this.gamePieces = gamePieces;
-	}
+
+	abstract Integer getGamePieces();
+
+	abstract boolean increaseGamePieces(Integer amount);
+
+	abstract boolean decreaseGamePieces(Integer amount);
+
+	abstract PlayerImpl getOwner();
+
+	abstract void setOwner(PlayerImpl owner);
+
+	abstract boolean isOwner(PlayerImpl playerToCheck);
+
+	abstract boolean isEmpty();
+
+	abstract boolean isNeighboorWith(Field defenseField);
+
+	abstract String fightAgainst(Field defenseField);
 	
-	public void increaseGamePieces(Integer amount) {
-		if (amount == null) return;
-		this.gamePieces +=amount;
-	}
+	abstract Integer[] rollDice();
 	
-	public Player getOwner() {
-		return owner;
-	}
-	public void setOwner(Player owner) {
-		this.owner = owner;
-	}
-	
-	public boolean isOwner (Player playerToCheck) {
-		return this.owner == playerToCheck ? true : false;
-	}
-	
-	public boolean isEmpty () {
-		return (gamePieces < 1) ? true : false;
-	}
-	
-	public boolean isNeighboorWith(Field fieldToCheck) {
-		if ((this.line == fieldToCheck.line+1 || this.line == fieldToCheck.line-1) && this.row == fieldToCheck.row) {
-			return true;
-		} else if ((this.row == fieldToCheck.row+1 || this.row == fieldToCheck.row-1) && this.line == fieldToCheck.line) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+
 }
