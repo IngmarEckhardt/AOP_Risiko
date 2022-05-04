@@ -4,9 +4,9 @@ abstract class Field {
 
 	protected int line;
 	protected int row;
-	protected PlayerImpl owner;
+	protected Player owner;
 	
-	protected Field (Integer line, Integer row, PlayerImpl owner) {
+	protected Field (Integer line, Integer row, Player owner) {
 		this.line = line;
 		this.row = row;
 		this.owner = owner;
@@ -18,11 +18,11 @@ abstract class Field {
 
 	abstract boolean decreaseGamePieces(Integer amount);
 
-	abstract PlayerImpl getOwner();
+	abstract Player getOwner();
 
-	abstract void setOwner(PlayerImpl owner);
+	abstract void setOwner(Player owner);
 
-	abstract boolean isOwner(PlayerImpl playerToCheck);
+	abstract boolean isOwner(Player playerToCheck);
 
 	abstract boolean isEmpty();
 

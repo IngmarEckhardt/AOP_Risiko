@@ -6,10 +6,10 @@ import java.util.Collections;
 class FieldImpl extends Field {
 	
 	private Integer gamePieces, line, row;
-	private PlayerImpl owner;
+	private Player owner;
 	private static Dice dice = new Dice();
 	
-	FieldImpl (Integer line, Integer row, PlayerImpl owner) {
+	FieldImpl (Integer line, Integer row, Player owner) {
 		super(line, row, owner);
 	}
 
@@ -33,17 +33,17 @@ class FieldImpl extends Field {
 	}
 	
 	@Override
-	PlayerImpl getOwner() {
+	Player getOwner() {
 		return owner;
 	}
 	@Override
-	void setOwner(PlayerImpl owner) {
+	void setOwner(Player owner) {
 		this.owner = owner;
 	}
 	
 	@Override
-	boolean isOwner (PlayerImpl playerToCheck) {
-		return this.owner == playerToCheck ? true : false;
+	boolean isOwner (Player owner) {
+		return this.owner == owner ? true : false;
 	}
 	
 	@Override

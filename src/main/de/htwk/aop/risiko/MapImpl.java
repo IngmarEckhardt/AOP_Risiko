@@ -25,7 +25,7 @@ class MapImpl extends Map {
 	}
 	
 	@Override
-	FieldImpl getFieldWithCheckingOwnership(String message, PlayerImpl owner) {
+	FieldImpl getFieldWithCheckingOwnership(String message, Player owner) {
 		
 		FieldImpl returnField = null;
 		int line, row;
@@ -63,7 +63,7 @@ class MapImpl extends Map {
 	}
 	
 	@Override
-	boolean moveAndDeployArmy(PlayerImpl player) {
+	boolean moveAndDeployArmy(Player player) {
 		FieldImpl fieldWithArmys, fieldToPlaceArmys;
 		Integer amountOfArmysToMove = 0, amountOfArmysToDeployFromDepot;
 	
@@ -104,7 +104,7 @@ class MapImpl extends Map {
 	}
 	
 	@Override
-	boolean initMapWithPieces(PlayerImpl playerOne, PlayerImpl playerTwo) {
+	boolean initMapWithPieces(Player playerOne, Player playerTwo) {
 		if (playerOne == null || playerTwo == null) {return false;}
 		for (int row = 0; row < 3; row++) {
 			for (int line = 0; line < 4; line++) {
@@ -139,7 +139,8 @@ class MapImpl extends Map {
 	}
 
 
-	private void clearArmys(PlayerImpl player) {
+	private void clearArmys(Player player) {
+	
 		for (Field[] line : map) {
 			for (Field field : line) {
 				if (field.isOwner(player))
@@ -148,7 +149,7 @@ class MapImpl extends Map {
 		}
 	}
 
-	private void distributeGamePieces(PlayerImpl player) {
+	private void distributeGamePieces(Player player) {
 		Integer amountToDistribute;
 		Field fieldToPlace;
 

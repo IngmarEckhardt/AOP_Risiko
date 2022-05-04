@@ -6,13 +6,9 @@ abstract class Player {
 	private int counter = 0;
 	protected int playerId, armyCount, fieldCount;
 	
-	private Player() {
+	protected Player (String name) {
 		this.playerId = counter + 1;
 		counter ++;
-	}
-	
-	protected Player (String name) {
-		super();
 		this.name = name;
 	}
 	
